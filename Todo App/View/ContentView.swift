@@ -10,6 +10,8 @@ import CoreData
 
 struct ContentView: View {
     //MARK: - PROPERTIES
+    @Environment(\.managedObjectContext) var managedObjectContext
+    
     @State private var showingAddTodoView: Bool = false
     
     
@@ -27,7 +29,7 @@ struct ContentView: View {
                 Image(systemName: "plus")
             })//: BUTTON
                 .sheet(isPresented: $showingAddTodoView, content: {
-                    AddTodoView()
+                    AddTodoView().environment(\.managedObjectContext, self.managedObjectContext)
                 })
             )
         }//: NAVIGATION

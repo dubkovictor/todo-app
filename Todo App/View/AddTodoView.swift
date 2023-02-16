@@ -9,12 +9,17 @@ import SwiftUI
 
 struct AddTodoView: View {
     //MARK: - PROPERTIES
+    @Environment(\.managedObjectContext) var managedObjectContext
     @Environment(\.presentationMode) var presenntantionMode
     
     @State private var name = ""
     @State private var priority = "Normal"
     
     let priorities = ["Hight", "Normal", "Low"]
+    
+    @State private var errorShowing: Bool = false
+    @State private var errorTitle: String = ""
+    @State private var errorMessage: String = ""
 
     
     //MARK: - BODY
@@ -35,7 +40,24 @@ struct AddTodoView: View {
                     
                     //MARK: - Save Button
                     Button {
-                        print("Save a new todo item.")
+                        if self.name != "" {
+                            let todo = Todo(context: self.managedObjectContext)
+                            todo.name = self.name
+                            todo.priority = self.priority
+                             do {
+                                try self.managedObjectContext.save()
+                                 print("New todo: \(String(describing: todo.name)), priority \(String(describing: todo.priority))")
+                            } catch {
+                                print(error)
+                            }
+                        } else {
+                            self.errorShowing = true
+                            self.errorTitle = "Invalid name"
+                            self.errorMessage = "Make sure to enter something for\nthe new todo item."
+                            return
+                        }
+                        self.presenntantionMode.wrappedValue.dismiss()
+
                     } label: {
                         Text("Save")
                     }//: BUTTON
@@ -51,6 +73,9 @@ struct AddTodoView: View {
                 Image(systemName: "xmark")
             })
             )
+            .alert(isPresented: $errorShowing) {
+                Alert(title: Text(errorTitle), message: Text(errorMessage), dismissButton: .default(Text("Ok")))
+            }
         } //: NAVIGATION
         
     }

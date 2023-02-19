@@ -20,15 +20,21 @@ struct AddTodoView: View {
     @State private var errorShowing: Bool = false
     @State private var errorTitle: String = ""
     @State private var errorMessage: String = ""
-
     
+    @ObservedObject var theme = ThemeSettings()
+    var themes: [Theme] = themeData
+
     //MARK: - BODY
     var body: some View {
         NavigationView {
             VStack {
-                Form {
+                VStack (alignment: .leading, spacing: 20) {
                     //MARK: - Todo name
                     TextField("todo", text: $name)
+                        .padding()
+                        .background(Color(UIColor.tertiarySystemFill))
+                        .cornerRadius(9)
+                        .font(.system(size: 24, weight: .bold, design: .default))
                     
                     //MARK: - Todo priority
                     Picker("Priority", selection: $priority) {
@@ -46,7 +52,7 @@ struct AddTodoView: View {
                             todo.priority = self.priority
                              do {
                                 try self.managedObjectContext.save()
-                                 print("New todo: \(String(describing: todo.name)), priority \(String(describing: todo.priority))")
+//                                 print("New todo: \(String(describing: todo.name)), priority \(String(describing: todo.priority))")
                             } catch {
                                 print(error)
                             }
@@ -60,9 +66,17 @@ struct AddTodoView: View {
 
                     } label: {
                         Text("Save")
+                            .font(.system(size: 24, weight: .bold, design: .default))
+                            .padding()
+                            .frame(minWidth: 0, maxWidth: .infinity)
+                            .background(themes[self.theme.themeSettings].themeColor)
+                            .cornerRadius(9)
+                            .foregroundColor(.white)
                     }//: BUTTON
 
-                }
+                }//: VSTACK
+                .padding(.horizontal)
+                .padding(.vertical, 30)
                 Spacer()
             }//: VSTACK
             .navigationBarTitle("New Todo", displayMode: .inline)
@@ -77,7 +91,8 @@ struct AddTodoView: View {
                 Alert(title: Text(errorTitle), message: Text(errorMessage), dismissButton: .default(Text("Ok")))
             }
         } //: NAVIGATION
-        
+        .accentColor(themes[self.theme.themeSettings].themeColor)
+        .navigationViewStyle(StackNavigationViewStyle())
     }
 }
 
